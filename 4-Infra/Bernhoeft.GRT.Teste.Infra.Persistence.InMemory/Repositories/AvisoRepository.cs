@@ -14,10 +14,37 @@ namespace Bernhoeft.GRT.ContractWeb.Infra.Persistence.SqlServer.ContractStore.Re
         {
         }
 
+        public IQueryable<AvisoEntity> GetIQueryable(TrackingBehavior tracking)
+            => tracking is TrackingBehavior.NoTracking ? Set.AsNoTrackingWithIdentityResolution() : Set;
+
         public Task<List<AvisoEntity>> ObterTodosAvisosAsync(TrackingBehavior tracking = TrackingBehavior.Default, CancellationToken cancellationToken = default)
+            => this.GetIQueryable(tracking).Where(x => x.Ativo).ToListAsync();
+
+        public Task<AvisoEntity> BuscarAvisoAsync(int Id, TrackingBehavior tracking = TrackingBehavior.Default, CancellationToken cancellationToken = default)
+            => this.GetIQueryable(tracking).FirstOrDefaultAsync(x => x.Id == Id && x.Ativo);
+
+        public async Task<bool> CadastrarAvisoAsync(AvisoEntity aviso, CancellationToken cancellationToken = default)
         {
-            var query = tracking is TrackingBehavior.NoTracking ? Set.AsNoTrackingWithIdentityResolution() : Set;
-            return query.ToListAsync();
+            Set.Add(aviso);
+            return (await Db.SaveChangesAsync(cancellationToken)) > 0;
+        }
+
+        public async Task<bool> EditarAvisoAsync(AvisoEntity aviso, CancellationToken cancellationToken = default)
+        {
+            var objReal = this.BuscarAvisoAsync(aviso.Id, TrackingBehavior.NoTracking);
+            aviso.DataCriacao = objReal.Result.DataCriacao;
+            aviso.Titulo = objReal.Result.Titulo;
+            aviso.Ativo = objReal.Result.Ativo;
+
+            Set.Entry(aviso).State = EntityState.Modified;
+            return (await Db.SaveChangesAsync(cancellationToken)) > 0;
+        }
+
+        public async Task<bool> AlterarStatusAvisoAsync(int avisoId, CancellationToken cancellationToken = default)
+        {
+            var objReal = await this.GetIQueryable(TrackingBehavior.Default).FirstOrDefaultAsync(x => x.Id == avisoId);
+            objReal.Ativo = !objReal.Ativo;
+            return (await Db.SaveChangesAsync(cancellationToken)) > 0;
         }
     }
 }

@@ -2,23 +2,20 @@
 
 namespace Bernhoeft.GRT.Teste.Application.Responses.Queries.v1
 {
-    public class GetAvisosResponse
+    public class PostAvisoResponse
     {
         public int Id { get; set; }
         public bool Ativo { get; set; }
         public string Titulo { get; set; }
         public string Mensagem { get; set; }
-        public string DataCriacao { get; set; }
-        public string DataModificacao { get; set; }
 
-        public static implicit operator GetAvisosResponse(AvisoEntity entity) => new()
+        public static implicit operator PostAvisoResponse(AvisoEntity entity) => new()
         {
             Id = entity.Id,
             Ativo = entity.Ativo,
             Titulo = entity.Titulo,
-            Mensagem = entity.Mensagem,
-            DataCriacao = entity.DataCriacao.ToString("dd/MM/yyyy HH:mm:ss"),
-            DataModificacao = entity.DataModificacao.ToString("dd/MM/yyyy HH:mm:ss")
+            Mensagem = entity.Mensagem
         };
+
     }
 }

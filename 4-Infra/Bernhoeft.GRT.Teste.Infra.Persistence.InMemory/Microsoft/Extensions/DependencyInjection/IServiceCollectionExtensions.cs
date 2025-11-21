@@ -25,11 +25,18 @@ namespace Microsoft.Extensions.DependencyInjection
                                {
                                    Titulo = "Titulo 1",
                                    Mensagem = "Mensagem 1",
+                                   Ativo = true,
+                                   DataCriacao = DateTime.Now,
+                                   DataModificacao = DateTime.Now,
                                });
+
                                dbSet.Add(new()
                                {
                                    Titulo = "Titulo 2",
                                    Mensagem = "Mensagem 2",
+                                   Ativo = true,
+                                   DataCriacao = DateTime.Now,
+                                   DataModificacao = DateTime.Now,
                                });
                                await context.SaveChangesAsync(cancellationToken);
                            }

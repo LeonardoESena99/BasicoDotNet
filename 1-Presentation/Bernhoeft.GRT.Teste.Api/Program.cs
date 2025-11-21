@@ -3,7 +3,9 @@ using System.Globalization;
 using System.Text.Json.Serialization;
 using Bernhoeft.GRT.Core.Extensions;
 using Bernhoeft.GRT.Teste.Api.Swashbuckle;
+using Bernhoeft.GRT.Teste.Application.Handlers.Queries.v1;
 using Bernhoeft.GRT.Teste.Application.Requests.Queries.v1;
+using Bernhoeft.GRT.Teste.Application.Requests.Queries.v1.Validations;
 using FluentValidation;
 using FluentValidation.AspNetCore;
 using MicroElements.Swashbuckle.FluentValidation.AspNetCore;
@@ -84,26 +86,33 @@ builder.Services.AddSwaggerGen(options =>
 
 // Configurando o MediatR.
 builder.Services.AddMediatR(options => options.RegisterServicesFromAssemblyContaining<GetAvisosRequest>());
+builder.Services.AddMediatR(options => options.RegisterServicesFromAssemblyContaining<GetAvisoIdRequest>());
+builder.Services.AddMediatR(options => options.RegisterServicesFromAssemblyContaining<PostAvisoRequest>());
+builder.Services.AddMediatR(options => options.RegisterServicesFromAssemblyContaining<PutAvisoRequest>());
+builder.Services.AddMediatR(options => options.RegisterServicesFromAssemblyContaining<AlterarStatusAvisoRequest>());
 
 // Adicionar Context de Conexão com Banco de Dados SqlServer GRT.
 builder.Services.AddDbContext();
 
+builder.Services.AddTransient(typeof(IPipelineBehavior<,>), typeof(ValidationBehavior<,>));
+
 // Outros Serviços.
-builder.Services.RegisterServicesFromAssemblyContaining<GetAvisosRequest>();
+builder.Services.RegisterServicesFromAssemblyContaining<GetAvisoIdRequest>();
 
 // Adicionando Fluent Validation.
 ValidatorOptions.Global.DefaultClassLevelCascadeMode = CascadeMode.Stop;
 ValidatorOptions.Global.DefaultRuleLevelCascadeMode = CascadeMode.Stop;
 ValidatorOptions.Global.LanguageManager.Culture = new CultureInfo("pt-BR");
+
 builder.Services.AddFluentValidationAutoValidation(options => options.DisableDataAnnotationsValidation = true)
                 .AddFluentValidationClientsideAdapters()
-                .AddValidatorsFromAssemblyContaining<GetAvisosRequest>();
+                .AddValidatorsFromAssemblyContaining<GetAvisoIdRequest>();
+
 builder.Services.AddFluentValidationRulesToSwagger();
 
 // Configure Some Options
 builder.Services.Configure<FormOptions>(options => options.ValueCountLimit = int.MaxValue)
                 .Configure<RouteOptions>(options => options.LowercaseUrls = true);
-
 // Configurando a Pipeline do HTTP Request.
 var app = builder.Build();
 app.UseForwardedHeaders(new()
